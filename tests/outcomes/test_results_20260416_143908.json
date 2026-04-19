@@ -1,0 +1,63 @@
+{
+  "passed": 7,
+  "total": 11,
+  "results": [
+    {
+      "test": "Small document sanity",
+      "passed": true,
+      "elapsed_sec": 2.143,
+      "answer": "The capital of France is Paris."
+    },
+    {
+      "test": "Small document multi-fact",
+      "passed": false,
+      "answer": "Python is a programming language."
+    },
+    {
+      "test": "Medium document paragraph understanding",
+      "passed": true,
+      "answer": "Air traffic control systems manage aircraft movement to ensure safety and efficiency. Controllers monitor aircraft positions and provide instructions."
+    },
+    {
+      "test": "Medium document irrelevant query",
+      "passed": false,
+      "answer": "Basketball is a sport played between two teams of five players. The objective is to score points by shooting a ball through a hoop."
+    },
+    {
+      "test": "Large document multi-chunk",
+      "passed": true,
+      "answer": "Section 1: Climate change is a long-term shift in global weather patterns. Observed effects include rising sea levels, increasing temperatures, more frequent heat waves, and shifts in seasonal rainfall patterns."
+    },
+    {
+      "test": "Large document precision",
+      "passed": true,
+      "answer": "Performance Note: The system latency is 120 milliseconds under normal load. Latency spikes may occur during maintenance windows."
+    },
+    {
+      "test": "Multi-document retrieval",
+      "passed": true,
+      "answer": "Tokyo is the capital of Japan."
+    },
+    {
+      "test": "Context limit retrieval",
+      "passed": false,
+      "answer": "76: This archival dossier covers multiple initiatives, timelines, and operational notes. It includes background context, stakeholder summaries, and execution details. The narrative continues with operational retrospectives and cross-team collaboration details. Recommendations and lessons learned are logged for future reference. Archive Section 77: This archival dossier covers multiple initiatives, timelines, and operational notes. It includes background context, stakeholder summaries, and execution details. The narrative continues with operational retrospectives and cross-team collaboration details. Recommendations and lessons learned are logged for future reference. Archive Section 78: This archival dossier covers multiple initiatives, timelines, and operational notes. It includes background context, stakeholder summaries, and execution details. The narrative continues with operational retrospectives and cross-team collaboration details. Recommendations and lessons learned are logged for future reference. Archive Section 79: This archival dossier covers multiple initiatives, timelines, and operational notes. It includes background context, stakeholder summaries, and execution details. The narrative continues with operational retrospectives and cross-team collaboration details. Recommendations and lessons learned are logged for future reference."
+    },
+    {
+      "test": "Ambiguous query",
+      "passed": false,
+      "answer": "Apple is a fruit. Apple Inc."
+    },
+    {
+      "test": "Performance",
+      "passed": true,
+      "elapsed_sec": 2.121,
+      "sources_count": 5
+    },
+    {
+      "test": "Consistency",
+      "passed": true,
+      "answer": "the capital of france is paris."
+    }
+  ]
+}

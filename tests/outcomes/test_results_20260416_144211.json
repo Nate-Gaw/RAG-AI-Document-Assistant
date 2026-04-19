@@ -1,0 +1,63 @@
+{
+  "passed": 8,
+  "total": 11,
+  "results": [
+    {
+      "test": "Small document sanity",
+      "passed": true,
+      "elapsed_sec": 2.138,
+      "answer": "The capital of France is Paris."
+    },
+    {
+      "test": "Small document multi-fact",
+      "passed": false,
+      "answer": "Python is a programming language."
+    },
+    {
+      "test": "Medium document paragraph understanding",
+      "passed": true,
+      "answer": "Air traffic control systems manage aircraft movement to ensure safety and efficiency. Controllers monitor aircraft positions and provide instructions. These systems reduce collision risk and improve traffic flow."
+    },
+    {
+      "test": "Medium document irrelevant query",
+      "passed": false,
+      "answer": "I do not have enough context to answer that question."
+    },
+    {
+      "test": "Large document multi-chunk",
+      "passed": true,
+      "answer": "Section 1: Climate change is a long-term shift in global weather patterns. Observed effects include rising sea levels, increasing temperatures, more frequent heat waves, and shifts in seasonal rainfall patterns. Policy and market incentives can accelerate these changes."
+    },
+    {
+      "test": "Large document precision",
+      "passed": true,
+      "answer": "Performance Note: The system latency is 120 milliseconds under normal load. Latency spikes may occur during maintenance windows. Module 9: This technical report documents system design, throughput targets, and operational constraints."
+    },
+    {
+      "test": "Multi-document retrieval",
+      "passed": true,
+      "answer": "Tokyo is the capital of Japan."
+    },
+    {
+      "test": "Context limit retrieval",
+      "passed": true,
+      "answer": "Deep Section: The Orion program began in 2017 after approval by the steering committee."
+    },
+    {
+      "test": "Ambiguous query",
+      "passed": false,
+      "answer": "Apple is a fruit. Apple Inc."
+    },
+    {
+      "test": "Performance",
+      "passed": true,
+      "elapsed_sec": 2.124,
+      "sources_count": 5
+    },
+    {
+      "test": "Consistency",
+      "passed": true,
+      "answer": "the capital of france is paris."
+    }
+  ]
+}
