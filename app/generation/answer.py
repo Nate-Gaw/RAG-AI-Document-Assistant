@@ -140,3 +140,4 @@ def generate_answer(
             except Exception:
                 pass
             return _extractive_answer(question, chunks), chunks
+        return _extractive_answer(question, chunks), chunks

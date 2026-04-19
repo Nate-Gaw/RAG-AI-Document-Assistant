@@ -1,4 +1,3 @@
-import html
 import os
 
 import requests
@@ -35,6 +34,8 @@ st.markdown(
 html, body, [class*="css"] {{
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   color: var(--text);
+  height: 100%;
+  overflow: hidden;
 }}
 
 .stApp {{
@@ -66,7 +67,7 @@ section.main > div.block-container {{
 }}
 
 .header-title {{
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: 700;
   margin-bottom: 0.1rem;
 }}
@@ -74,74 +75,20 @@ section.main > div.block-container {{
 .header-subtitle {{
   font-size: 0.95rem;
   opacity: 0.7;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
 }}
 
 .header-divider {{
   height: 1px;
   background: rgba(255,255,255,0.08);
-  margin: 0.35rem 0 0.7rem;
+  margin: 0.35rem 0 0.8rem;
 }}
 
-.chat-shell {{
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
+.panel {{
   background: var(--panel);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
-  padding: 12px;
-}}
-
-.chat-messages {{
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 12px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 900px;
-  width: 100%;
-  margin: 0 auto;
-}}
-
-.message {{
-  max-width: 70%;
-  padding: 10px 12px;
-  border-radius: 14px;
-  line-height: 1.4;
-  border: 1px solid rgba(255,255,255,0.08);
-}}
-
-.message.user {{
-  align-self: flex-end;
-  background: rgba(30,41,59,0.8);
-}}
-
-.message.ai {{
-  align-self: flex-start;
-  background: rgba(15,23,42,0.8);
-}}
-
-.input-bar {{
-  display: flex;
-  gap: 12px;
-  align-items: flex-end;
-  margin: 10px auto 0;
-  padding: 10px 12px;
-  width: 100%;
-  max-width: 900px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: #0b1220;
-}}
-
-.empty-state {{
-  color: rgba(226,232,240,0.7);
-  font-size: 0.92rem;
-  padding: 0.5rem 0.4rem;
+  padding: 12px 14px;
 }}
 
 .sidebar-section {{
@@ -149,19 +96,30 @@ section.main > div.block-container {{
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.7;
-  margin: 0.6rem 0 0.4rem;
-}}
-
-.upload-box {{
-  border: 1px dashed rgba(255,255,255,0.2);
-  border-radius: 12px;
-  padding: 10px;
+  margin: 0.9rem 0 0.5rem;
 }}
 
 .file-list {{
   max-height: 260px;
   overflow-y: auto;
   padding-right: 4px;
+}}
+
+[data-testid="stRadio"] label {{
+  background: transparent;
+  border-radius: 8px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+}}
+
+[data-testid="stRadio"] label:hover {{
+  background: rgba(148,163,184,0.12);
+}}
+
+[data-testid="stRadio"] input:checked + div {{
+  background: rgba(20,184,166,0.18);
+  border-radius: 8px;
+  padding: 6px 8px;
 }}
 
 .stButton button {{
@@ -180,50 +138,60 @@ section.main > div.block-container {{
     unsafe_allow_html=True,
 )
 
-if "chat" not in st.session_state:
-    st.session_state.chat = []
 if "files" not in st.session_state:
-  st.session_state.files = {}
-if "selected_file" not in st.session_state:
-    st.session_state.selected_file = None
+    st.session_state.files = {}
 if "upload_signature" not in st.session_state:
     st.session_state.upload_signature = None
-
-
-def _escape(text: str) -> str:
-    return html.escape(text)
+if "messages" not in st.session_state:
+  st.session_state.messages = []
 
 
 def _reset_store() -> None:
-    reset_resp = requests.post(f"{backend_url}/reset", timeout=30)
-    if reset_resp.status_code != 200:
-        st.error("Failed to reset index before upload.")
+    try:
+        reset_resp = requests.post(f"{backend_url}/reset", timeout=30)
+        reset_resp.raise_for_status()
+    except requests.RequestException as exc:
+        st.error(f"Failed to reset index: {exc}")
         st.stop()
 
 
 def _upload_documents(files: list[st.runtime.uploaded_file_manager.UploadedFile]) -> None:
-  _reset_store()
+    _reset_store()
+    for upload in files:
+        payload = {"file": (upload.name, upload.getvalue())}
+        try:
+            resp = requests.post(f"{backend_url}/upload", files=payload, timeout=120)
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            st.error(f"Upload failed for {upload.name}: {exc}")
 
-  for upload in files:
-    payload = {"file": (upload.name, upload.getvalue())}
-    resp = requests.post(f"{backend_url}/upload", files=payload, timeout=120)
-    if resp.status_code != 200:
-      st.error(resp.json().get("detail", f"Upload failed for {upload.name}."))
+
+def _signature_for(uploads: list[st.runtime.uploaded_file_manager.UploadedFile]) -> tuple[str, ...]:
+    return tuple(sorted(f"{upload.name}:{upload.size}" for upload in uploads))
+
+
+def _ask_backend(question: str) -> tuple[str, list[dict[str, str | float]]]:
+  payload = {"question": question, "top_k": 4}
+  try:
+    resp = requests.post(f"{backend_url}/query", json=payload, timeout=120)
+    resp.raise_for_status()
+  except requests.RequestException as exc:
+    return f"Query failed: {exc}", []
+  data = resp.json()
+  return data.get("answer", ""), data.get("sources", [])
 
 
 with st.sidebar:
     st.markdown("### Documents")
     st.markdown('<div class="sidebar-section">Upload</div>', unsafe_allow_html=True)
-    st.markdown('<div class="upload-box">', unsafe_allow_html=True)
     uploads = st.file_uploader(
         "Upload Document",
         type=["pdf", "txt"],
         accept_multiple_files=True,
         label_visibility="collapsed",
     )
-    st.markdown("</div>", unsafe_allow_html=True)
 
-    signature = tuple(sorted(f"{u.name}:{u.size}" for u in uploads)) if uploads else tuple()
+    signature = _signature_for(uploads) if uploads else tuple()
     if st.session_state.upload_signature != signature:
         if uploads:
             st.session_state.files = {
@@ -232,91 +200,68 @@ with st.sidebar:
             }
             with st.spinner("Processing and indexing..."):
                 _upload_documents(uploads)
-            st.session_state.selected_file = uploads[0].name
         else:
             if st.session_state.files:
                 _reset_store()
             st.session_state.files = {}
-            st.session_state.selected_file = None
+        st.session_state.messages = []
         st.session_state.upload_signature = signature
 
     st.markdown('<div class="sidebar-section">Documents</div>', unsafe_allow_html=True)
     if st.session_state.files:
-        with st.container():
-            st.markdown('<div class="file-list">', unsafe_allow_html=True)
-            st.session_state.selected_file = st.radio(
-                "Select a file",
-                list(st.session_state.files.keys()),
-                index=list(st.session_state.files.keys()).index(st.session_state.selected_file)
-                if st.session_state.selected_file in st.session_state.files
-                else 0,
-                label_visibility="collapsed",
-            )
-            st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown('<div class="sidebar-section">Preview</div>', unsafe_allow_html=True)
-        selected = st.session_state.files.get(st.session_state.selected_file)
-        if selected:
-            if selected["type"] == "text/plain":
-                preview_text = selected["data"].decode("utf-8", errors="ignore")
-                st.text_area("Preview", value=preview_text, height=240, label_visibility="collapsed")
-            else:
-                st.info("PDF preview not available. The file is indexed for Q&A.")
+      st.caption(f"{len(st.session_state.files)} document(s) uploaded.")
     else:
-        st.caption("Upload a document and ask a question to begin.")
+      st.caption("Upload documents to begin.")
 
 st.markdown('<div class="header-title">RAG AI Document Assistant</div>', unsafe_allow_html=True)
 st.markdown(
-    '<div class="header-subtitle">Upload documents, preview content, and chat with your files.</div>',
-    unsafe_allow_html=True,
+  '<div class="header-subtitle">Preview all documents and chat with the collection.</div>',
+  unsafe_allow_html=True,
 )
 st.markdown('<div class="header-divider"></div>', unsafe_allow_html=True)
 
-st.markdown('<div class="chat-shell">', unsafe_allow_html=True)
-st.markdown('<div class="chat-messages">', unsafe_allow_html=True)
-if not st.session_state.chat:
-    st.markdown(
-        '<div class="empty-state">Upload a document and ask a question to begin.</div>',
-        unsafe_allow_html=True,
-    )
-
-for message in st.session_state.chat:
-    role = message.get("role", "assistant")
-    content = _escape(message.get("content", ""))
-    role_class = "user" if role == "user" else "ai"
-    st.markdown(f'<div class="message {role_class}">{content}</div>', unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
-st.markdown('<div class="input-bar">', unsafe_allow_html=True)
-with st.form("chat_input", clear_on_submit=True):
-    input_col, button_col = st.columns([6, 1])
-    with input_col:
-        question = st.text_area(
-            "Ask a question",
-            placeholder="Ask a question about your documents...",
-            height=54,
-            label_visibility="collapsed",
+st.markdown('<div class="panel">', unsafe_allow_html=True)
+st.markdown("#### Preview")
+if st.session_state.files:
+  for name, file_info in st.session_state.files.items():
+    with st.expander(name, expanded=False):
+      if file_info.get("type") == "text/plain":
+        preview_text = file_info["data"].decode("utf-8", errors="ignore")
+        st.text_area(
+          f"Preview: {name}",
+          value=preview_text,
+          height=220,
+          label_visibility="collapsed",
         )
-    with button_col:
-        submitted = st.form_submit_button("Send")
-st.markdown("</div>", unsafe_allow_html=True)
+      else:
+        st.info("PDF preview not available. The file is indexed.")
+else:
+  st.caption("Upload documents to preview their contents.")
+st.markdown("#### Chat")
+if not st.session_state.messages:
+    st.caption("Ask a question about your uploaded documents.")
+for message in st.session_state.messages:
+    role = message.get("role", "assistant")
+    content = message.get("content", "")
+    sources = message.get("sources", [])
+    with st.chat_message(role):
+        st.markdown(content)
+        if sources and role == "assistant":
+            with st.expander("Sources", expanded=False):
+                for idx, item in enumerate(sources):
+                    st.markdown(f"{idx + 1}. {item.get('text', '')}")
 st.markdown("</div>", unsafe_allow_html=True)
 
-if submitted and question.strip():
+prompt = st.chat_input("Ask a question about your documents")
+if prompt:
     if not st.session_state.files:
-        st.warning("Please upload a document first")
+        st.warning("Upload a document before asking a question.")
     else:
-        st.session_state.chat.append({"role": "user", "content": question.strip()})
-        with st.spinner("Retrieving context and generating answer..."):
-            payload = {"question": question.strip(), "top_k": 4}
-            resp = requests.post(f"{backend_url}/query", json=payload, timeout=120)
-            if resp.status_code != 200:
-                answer_text = resp.json().get("detail", "Query failed.")
-                st.error(answer_text)
-                answer_text = ""
-            else:
-                data = resp.json()
-                answer_text = data.get("answer", "")
-        if answer_text:
-            st.session_state.chat.append({"role": "assistant", "content": answer_text})
-        st.rerun()
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.spinner("Thinking..."):
+            answer, sources = _ask_backend(prompt)
+        st.session_state.messages.append(
+          {"role": "assistant", "content": answer, "sources": sources}
+        )
+    st.rerun()
+

@@ -51,6 +51,7 @@ async def upload(file: UploadFile = File(...)) -> dict:
     store.save()
     return {"chunks_added": len(chunks)}
 
+
 @app.post("/query")
 def query(req: QueryRequest) -> dict:
     question = req.question.strip()
@@ -117,7 +118,8 @@ def query(req: QueryRequest) -> dict:
         answer, sources = generate_answer(question, results)
         return {"answer": answer, "sources": sources}
     except Exception as exc:
-        return {"answer": f"Query failed: {exc}", "sources": []}
+        raise HTTPException(status_code=500, detail=f"Query failed: {exc}") from exc
+
 
 @app.post("/reset")
 def reset() -> dict:
