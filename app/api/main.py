@@ -23,6 +23,43 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM
 embedder = Embedder(EMBEDDING_MODEL)
 store = VectorStore.load(embedder.dimension(), INDEX_PATH, CHUNKS_PATH)
 
+STOPWORDS = {
+    "the",
+    "is",
+    "are",
+    "a",
+    "an",
+    "of",
+    "to",
+    "for",
+    "and",
+    "or",
+    "what",
+    "which",
+    "who",
+    "when",
+    "where",
+    "why",
+    "how",
+    "does",
+    "do",
+    "did",
+    "it",
+    "in",
+    "on",
+    "with",
+    "by",
+    "about",
+    "from",
+    "be",
+    "as",
+    "at",
+    "this",
+    "that",
+    "these",
+    "those",
+}
+
 
 class QueryRequest(BaseModel):
     question: str
@@ -58,8 +95,15 @@ def query(req: QueryRequest) -> dict:
     if not question:
         raise HTTPException(status_code=400, detail="Question is required.")
     try:
+        summary_mode = any(term in question.lower() for term in ["summarize", "summary", "overview"])
         query_embedding = embedder.embed_query(question)
         results = store.search(query_embedding, top_k=req.top_k)
+
+        if summary_mode and store.chunks:
+            sample_size = min(max(req.top_k, 8), 16, len(store.chunks))
+            stride = max(1, len(store.chunks) // sample_size)
+            sampled = store.chunks[::stride][:sample_size]
+            results = [{"text": chunk, "score": 1.0} for chunk in sampled]
         if results:
             top_score = results[0].get("score", 0.0)
         else:
@@ -67,43 +111,7 @@ def query(req: QueryRequest) -> dict:
 
         if top_score < 0.25:
             tokens = re.findall(r"[A-Za-z0-9']+", question.lower())
-            stopwords = {
-                "the",
-                "is",
-                "are",
-                "a",
-                "an",
-                "of",
-                "to",
-                "for",
-                "and",
-                "or",
-                "what",
-                "which",
-                "who",
-                "when",
-                "where",
-                "why",
-                "how",
-                "does",
-                "do",
-                "did",
-                "it",
-                "in",
-                "on",
-                "with",
-                "by",
-                "about",
-                "from",
-                "be",
-                "as",
-                "at",
-                "this",
-                "that",
-                "these",
-                "those",
-            }
-            keywords = [token for token in tokens if token not in stopwords]
+            keywords = [token for token in tokens if token not in STOPWORDS]
             if keywords:
                 lexical_hits = []
                 for chunk in store.chunks:
