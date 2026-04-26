@@ -1,8 +1,11 @@
 import os
 import re
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app.embeddings.encoder import Embedder
@@ -15,6 +18,10 @@ load_dotenv()
 
 app = FastAPI(title="RAG AI Document Assistant")
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+WEB_DIR = PROJECT_ROOT / "app" / "web"
+WEB_INDEX = WEB_DIR / "index.html"
+
 DATA_DIR = os.getenv("RAG_DATA_DIR", "data")
 INDEX_PATH = os.path.join(DATA_DIR, "faiss.index")
 CHUNKS_PATH = os.path.join(DATA_DIR, "chunks.json")
@@ -22,6 +29,9 @@ EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM
 
 embedder = Embedder(EMBEDDING_MODEL)
 store = VectorStore.load(embedder.dimension(), INDEX_PATH, CHUNKS_PATH)
+
+if WEB_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(WEB_DIR)), name="assets")
 
 STOPWORDS = {
     "the",
@@ -134,3 +144,23 @@ def reset() -> dict:
     store.clear()
     store.save()
     return {"status": "cleared"}
+
+
+@app.get("/", include_in_schema=False)
+def home() -> FileResponse:
+    return FileResponse(WEB_INDEX)
+
+
+@app.get("/home", include_in_schema=False)
+def home_page() -> FileResponse:
+    return FileResponse(WEB_INDEX)
+
+
+@app.get("/technical", include_in_schema=False)
+def technical_page() -> FileResponse:
+    return FileResponse(WEB_INDEX)
+
+
+@app.get("/workspace", include_in_schema=False)
+def workspace_page() -> FileResponse:
+    return FileResponse(WEB_INDEX)
