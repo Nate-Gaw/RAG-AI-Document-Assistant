@@ -5,51 +5,51 @@ const STORAGE_KEY = "rag-ai-scroll-state";
 const TRANSITION_DURATION = 600;
 
 const pageData = {
-	home: {
-		steps: [
-			{ key: "hero", eyebrow: "Welcome", title: "RAG AI Document Assistant", copy: "A system that turns static documents into instant, grounded answers by pairing retrieval with generation.", detail: "The experience starts with a clear product story: documents stay readable, answers stay traceable, and the interface stays focused on the workflow.", stickyTitle: "Instant grounded answers", stickyCopy: "This assistant helps people move from document overload to reliable answers without losing the source trail.", tags: ["Retrieval", "Generation", "Grounded"] },
-			{ key: "problem", eyebrow: "The problem", title: "Documents are slow to work through", copy: "Important details get buried in long files, search takes too long, and traditional AI can sound confident without being reliable.", detail: "When information is scattered across pages, the real cost is time spent hunting for the right passage instead of using it.", stickyTitle: "Hidden information", stickyCopy: "The system exists because reading every page manually is slow and error-prone.", tags: ["Slow", "Buried", "Risk"] },
-			{ key: "solution", eyebrow: "Why it matters", title: "Grounding reduces wasted time and bad calls", copy: "A grounded workflow cuts down search time, lowers decision delays, and reduces the risk of acting on incorrect answers.", detail: "The point is not more AI for its own sake. The point is faster understanding with better confidence.", stickyTitle: "Practical trust", stickyCopy: "The assistant is useful because it makes answers easier to verify.", tags: ["Faster", "Safer", "Clearer"] },
-			{ key: "pipeline", eyebrow: "How it works", title: "Retrieval and generation work together", copy: "The system finds relevant passages first, then generates an answer from those passages so the response stays tied to the source data.", detail: "That is the core difference between a grounded assistant and a generic chatbot.", stickyTitle: "RAG flow", stickyCopy: "The answer comes from evidence, not guesswork.", tags: ["Retrieve", "Generate", "Evidence"] },
-			{ key: "answer", eyebrow: "Value", title: "Your data stays explainable and useful", copy: "Answers come from your documents, the reasoning is easier to trace, and the output stays verifiable instead of opaque.", detail: "That makes the assistant a practical tool for work, study, and research instead of just a demo.", stickyTitle: "Explainable outputs", stickyCopy: "Users can trust the answer because they can follow the supporting context.", tags: ["Verifiable", "Traceable", "Useful"] }
-		]
-	},
-	technical: {
-		steps: [
-			{ key: "overview", eyebrow: "System overview", title: "RAG needs retrieval before generation", copy: "The technical page explains why the app does not ask the model to answer from memory alone: relevant context has to be found first.", detail: "That keeps the system aligned with the source material instead of relying on unsupported output.", stickyTitle: "Retrieval first", stickyCopy: "The assistant gathers context before it generates a response.", tags: ["RAG", "Retrieval", "Grounding"] },
-			{ key: "ingestion", eyebrow: "Ingestion", title: "The app accepts PDFs and text files", copy: "Uploaded files enter the existing preprocessing pipeline so they can be prepared for analysis without changing the backend contract.", detail: "The goal is simple: bring documents in, keep the source data intact, and make it ready for the next stage.", stickyTitle: "Prepare data", stickyCopy: "Files are accepted and prepared for downstream analysis.", tags: ["PDFs", "Text", "Preprocessing"] },
-			{ key: "chunking", eyebrow: "Chunking", title: "Documents are split into smaller segments", copy: "The processing flow breaks documents into chunks so each segment can carry useful context without becoming too large.", detail: "Overlap helps maintain continuity across boundaries when a thought spans more than one chunk.", stickyTitle: "Context preservation", stickyCopy: "Chunking keeps the meaning readable in smaller pieces.", tags: ["Segments", "Overlap", "Context"] },
-			{ key: "embeddings", eyebrow: "Embeddings", title: "Text is converted into vectors", copy: "Embedding the chunks gives the system a semantic representation it can compare by meaning instead of only by exact wording.", detail: "That is what makes the retrieval step effective for similar ideas, not just identical phrases.", stickyTitle: "Semantic representation", stickyCopy: "Vectors capture meaning well enough for search to work by similarity.", tags: ["Vectors", "Similarity", "Meaning"] },
-			{ key: "retrieval", eyebrow: "Vector storage", title: "Stored embeddings support fast similarity search", copy: "Once vectors are available, the system can compare the query against stored passages and surface the most relevant matches quickly.", detail: "This is the search layer that connects the user’s question to the document evidence.", stickyTitle: "Fast search", stickyCopy: "The best passages are selected from stored embeddings.", tags: ["Storage", "Search", "Matches"] },
-			{ key: "response", eyebrow: "Generation", title: "The answer is generated from retrieved evidence", copy: "After the relevant chunks are found, the model uses that evidence to produce the response and expose the supporting passages.", detail: "That keeps the output readable, grounded, and easier to verify after the fact.", stickyTitle: "Evidence-based output", stickyCopy: "The response comes from retrieved context and can be traced back to sources.", tags: ["Answer", "Sources", "Traceable"] }
-		]
-	},
-	workspace: {
-		introTitle: "Upload documents and ask grounded questions",
-		introCopy: "The backend remains unchanged. This panel only talks to the existing ingestion, query, and reset routes.",
-		steps: []
-	}
+  home: {
+    steps: [
+      { key: "hero", eyebrow: "Welcome", title: "RAG AI Document Assistant", copy: "A system that turns static documents into instant, grounded answers by pairing retrieval with generation.", detail: "The experience starts with a clear product story: documents stay readable, answers stay traceable, and the interface stays focused on the workflow.", stickyTitle: "Instant grounded answers", stickyCopy: "This assistant helps people move from document overload to reliable answers without losing the source trail.", tags: ["Retrieval", "Generation", "Grounded"] },
+      { key: "problem", eyebrow: "The problem", title: "Documents are slow to work through", copy: "Important details get buried in long files, search takes too long, and traditional AI can sound confident without being reliable.", detail: "When information is scattered across pages, the real cost is time spent hunting for the right passage instead of using it.", stickyTitle: "Hidden information", stickyCopy: "The system exists because reading every page manually is slow and error-prone.", tags: ["Slow", "Buried", "Risk"] },
+      { key: "solution", eyebrow: "Why it matters", title: "Grounding reduces wasted time and bad calls", copy: "A grounded workflow cuts down search time, lowers decision delays, and reduces the risk of acting on incorrect answers.", detail: "The point is not more AI for its own sake. The point is faster understanding with better confidence.", stickyTitle: "Practical trust", stickyCopy: "The assistant is useful because it makes answers easier to verify.", tags: ["Faster", "Safer", "Clearer"] },
+      { key: "pipeline", eyebrow: "How it works", title: "Retrieval and generation work together", copy: "The system finds relevant passages first, then generates an answer from those passages so the response stays tied to the source data.", detail: "That is the core difference between a grounded assistant and a generic chatbot.", stickyTitle: "RAG flow", stickyCopy: "The answer comes from evidence, not guesswork.", tags: ["Retrieve", "Generate", "Evidence"] },
+      { key: "answer", eyebrow: "Value", title: "Your data stays explainable and useful", copy: "Answers come from your documents, the reasoning is easier to trace, and the output stays verifiable instead of opaque.", detail: "That makes the assistant a practical tool for work, study, and research instead of just a demo.", stickyTitle: "Explainable outputs", stickyCopy: "Users can trust the answer because they can follow the supporting context.", tags: ["Verifiable", "Traceable", "Useful"] }
+    ]
+  },
+  technical: {
+    steps: [
+      { key: "overview", eyebrow: "System overview", title: "RAG needs retrieval before generation", copy: "The technical page explains why the app does not ask the model to answer from memory alone: relevant context has to be found first.", detail: "That keeps the system aligned with the source material instead of relying on unsupported output.", stickyTitle: "Retrieval first", stickyCopy: "The assistant gathers context before it generates a response.", tags: ["RAG", "Retrieval", "Grounding"] },
+      { key: "ingestion", eyebrow: "Ingestion", title: "The app accepts PDFs and text files", copy: "Uploaded files enter the existing preprocessing pipeline so they can be prepared for analysis without changing the backend contract.", detail: "The goal is simple: bring documents in, keep the source data intact, and make it ready for the next stage.", stickyTitle: "Prepare data", stickyCopy: "Files are accepted and prepared for downstream analysis.", tags: ["PDFs", "Text", "Preprocessing"] },
+      { key: "chunking", eyebrow: "Chunking", title: "Documents are split into smaller segments", copy: "The processing flow breaks documents into chunks so each segment can carry useful context without becoming too large.", detail: "Overlap helps maintain continuity across boundaries when a thought spans more than one chunk.", stickyTitle: "Context preservation", stickyCopy: "Chunking keeps the meaning readable in smaller pieces.", tags: ["Segments", "Overlap", "Context"] },
+      { key: "embeddings", eyebrow: "Embeddings", title: "Text is converted into vectors", copy: "Embedding the chunks gives the system a semantic representation it can compare by meaning instead of only by exact wording.", detail: "That is what makes the retrieval step effective for similar ideas, not just identical phrases.", stickyTitle: "Semantic representation", stickyCopy: "Vectors capture meaning well enough for search to work by similarity.", tags: ["Vectors", "Similarity", "Meaning"] },
+      { key: "retrieval", eyebrow: "Vector storage", title: "Stored embeddings support fast similarity search", copy: "Once vectors are available, the system can compare the query against stored passages and surface the most relevant matches quickly.", detail: "This is the search layer that connects the user’s question to the document evidence.", stickyTitle: "Fast search", stickyCopy: "The best passages are selected from stored embeddings.", tags: ["Storage", "Search", "Matches"] },
+      { key: "response", eyebrow: "Generation", title: "The answer is generated from retrieved evidence", copy: "After the relevant chunks are found, the model uses that evidence to produce the response and expose the supporting passages.", detail: "That keeps the output readable, grounded, and easier to verify after the fact.", stickyTitle: "Evidence-based output", stickyCopy: "The response comes from retrieved context and can be traced back to sources.", tags: ["Answer", "Sources", "Traceable"] }
+    ]
+  },
+  workspace: {
+    introTitle: "Upload documents and ask grounded questions",
+    introCopy: "The backend remains unchanged. This panel only talks to the existing ingestion, query, and reset routes.",
+    steps: []
+  }
 };
 
 const state = {
-	page: resolvePageFromLocation(),
-	activeStep: 0,
-	renderToken: 0,
-	scrollMemory: loadScrollMemory(),
-	scrollListenerAttached: false,
-	controlsBound: false,
-	visitedPages: {},
-	isTransitioning: false,
-	transitionTimer: null
+  page: resolvePageFromLocation(),
+  activeStep: 0,
+  renderToken: 0,
+  scrollMemory: loadScrollMemory(),
+  scrollListenerAttached: false,
+  controlsBound: false,
+  visitedPages: {},
+  isTransitioning: false,
+  transitionTimer: null
 };
 
 function escapeHtml(value) {
-	return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
+  return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 function clamp(value, min, max) { return Math.min(Math.max(value, min), max); }
 function getHeaderOffset() {
-	const headerHeight = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height"));
-	return Number.isFinite(headerHeight) ? headerHeight : 132;
+  const headerHeight = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-height"));
+  return Number.isFinite(headerHeight) ? headerHeight : 132;
 }
 function loadScrollMemory() { try { const raw = window.localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : {}; } catch { return {}; } }
 function saveScrollMemory() { try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.scrollMemory)); } catch {} }
