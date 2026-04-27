@@ -1359,7 +1359,7 @@ def _render_home() -> None:
         """,
         unsafe_allow_html=True,
     )
-    components.html(_build_scrolly_html(), height=980, scrolling=True)
+    components.html(_build_scrolly_html(), height=4300, scrolling=False)
     st.markdown(
         """
         <div class="surface-card cta-footer" style="margin-top: 1rem;">
@@ -1541,7 +1541,7 @@ def _render_technical() -> None:
         """,
         unsafe_allow_html=True,
     )
-    components.html(_render_technical_scrolly(), height=1000, scrolling=True)
+    components.html(_render_technical_scrolly(), height=4300, scrolling=False)
 
 
 def _render_workspace() -> None:
